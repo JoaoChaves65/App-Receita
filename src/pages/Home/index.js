@@ -1,28 +1,59 @@
 
-import { View, Text, StyleSheet, SafeAreaView, TextInput } from "react-native"
-
+import { useState, useEffect } from 'react'
+import { View, Text, StyleSheet, SafeAreaView, TextInput, TouchableOpacity,
+FlatList,
+} from "react-native"
 import { Ionicons } from '@expo/vector-icons'
+import { Logo } from '../../components/logo'
 
-import { Logo } from "../../components/logo"
-import { TouchableHighlightBase } from "react-native"
-import { TouchableOpacity } from "react-native"
+import api from '../../services/api'
+import { FoodList } from '../../components/foodlist'
 
 export function Home () {
+    const [inputValue, setInputValue] = useState("")
+    const [foods, setFoods] = useState([])
+
+    useEffect(() => {
+
+        async function fetchApi(){
+            const response = await api.get("/foods")
+            setFoods(response.data)
+        }
+
+        fetchApi();
+
+    }, [])
+
+    function handleSearch(){
+        console.log("Você digitou:")
+        console.log(inputValue)
+    }
+
     return(
         <SafeAreaView style={styles.container}>
             <Logo/>
-
             <Text style={styles.title}>Encontre a receita</Text>
             <Text style={styles.title}>que combina com você</Text>
 
             <View style={styles.form}>
-                <TextInput placeholder="Digite o nome da comida..."
+                <TextInput 
+                placeholder="Digite o nome da comida..."
                 style={styles.input}
+                value={inputValue}
+                onChangeText={ (text) => setInputValue(text) }
                 />
-                <TouchableOpacity>
+                <TouchableOpacity onPress={handleSearch}>
                     <Ionicons name="search" size={28} color="#4CBE6C"/>
                 </TouchableOpacity>
             </View>
+
+        <FlatList
+            data={foods}
+            keyExtractor={ (item) => String(item.id) }
+            renderItem={ ({ item }) => <FoodList data={item} />}
+            showsVerticalScrollIndicator={false}
+        />
+
         </SafeAreaView>
     )
 }
@@ -58,6 +89,5 @@ const styles = StyleSheet.create({
         width: "90%",
         maxWidth: "90%",
         height: 54
-        
     }
 })
