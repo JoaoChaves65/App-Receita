@@ -9,30 +9,59 @@ import { Instructions } from '../../components/instructions'
 
 import { VideoView } from '../..//components/video'
 
+import { isFavorite, saveFavorite, removeItem } from '../../utils/storage'
+
 export function Details() {
     const route = useRoute();
     const navigation = useNavigation();
 
     const [showVideo, setShowVideo] = useState(false);
+    const [favorite, setFavorite] = useState(false);
+
 
     useLayoutEffect(() => {
 
+        async function getStatusFavorites(){
+            const receipeFavorite = await isFavorite(route.params?.data)
+            setFavorite(receipeFavorite)
+        }
+
+        getStatusFavorites()
 
         navigation.setOptions({
             title: route.params?.data ? route.params?.data.name : "Detalhes da receita",
             headerRight: () => (
-                <Pressable onPress={() => console.log("TESTANDO")}>
-                    <Entypo
-                        name="heart"
-                        size={28}
-                        color="#FF4141"
-                    />
+                <Pressable onPress={ () => handleFavoriteReceipe(route.params?.data) }>
+                    { favorite ? (
+                        <Entypo
+                            name="heart"
+                            size={28}
+                            color="#FF4141"
+                        />
+                    ) : (
+                        <Entypo
+                            name="heart-outlined"
+                            size={28}
+                            color="#FF4141"
+                        />
+                    )}
                 </Pressable>
             )
         })
 
 
-    }, [navigation, route.params?.data])
+    }, [navigation, route.params?.data, favorite])
+
+
+    async function handleFavoriteReceipe(receipe){
+        if(favorite){
+            await removeItem(receipe.id)
+            setFavorite(false);
+        }else{
+            await saveFavorite("@appreceitas", receipe)
+            setFavorite(true);
+        }
+    }
 
 
     function handleOpenVideo(){
