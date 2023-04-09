@@ -39,6 +39,7 @@ export function Favorites () {
                 <Text>Você ainda não tem nenhuma receita salva.</Text>
             )}
 
+
             <FlatList 
             showsVerticalScrollIndicator={false}
             style={{ marginTop: 14 }}
